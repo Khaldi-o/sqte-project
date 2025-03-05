@@ -7,44 +7,21 @@ import { Play } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 
-// Types pour la partie actualités
-type NewsItem = {
-  id: number;
-  date: string;
-  content: string;
-  image: string;
-};
+async function fetchLatestNews() {
+  const response = await fetch('/api/news/latest');
+  if (!response.ok) {
+    throw new Error('Failed to fetch news');
+  }
+  return response.json();
+}
 
-// pour les évemenements
-type EventItem = {
-  id: number;
-  date: string;
-  content: string;
-  image: string;
-  hasVideo: boolean;
-};
-
-// Mock API functions
-const fetchLatestNews = async (): Promise<NewsItem> => {
-  return {
-    id: 1,
-    date: "Mon. 20/12/24",
-    content:
-      "Jolie tu erres » : un sanctuaire en mal de confiance. Un événement collaboratif qui ressemble différents profils et une diversité de compétences qui collaborent étroitement pour donner sens au travail associatif.. tu peux nous rejoindre en t'inscrivant sur l'événement. Un événement collaboratif qui ressemble différents profils SQTE.",
-    image: "/images/img4.png",
-  };
-};
-
-const fetchLatestEvent = async (): Promise<EventItem> => {
-  return {
-    id: 1,
-    date: "Ven. 16/12/24",
-    content:
-      "Jolie tu erres » : un sanctuaire en mal de confiance. Un événement collaboratif qui ressemble différents profils et une diversité de compétences qui collaborent étroitement pour donner sens au travail associatif.. tu peux nous rejoindre en t'inscrivant .. Un événement collaboratif qui ressemble différents profils. Nulla  Sans que tu erres.",
-    image: "/images/img5.jpg",
-    hasVideo: true,
-  };
-};
+async function fetchLatestEvent() {
+  const response = await fetch('/api/events/latest');
+  if (!response.ok) {
+    throw new Error('Failed to fetch event');
+  }
+  return response.json();
+}
 
 export default function NewsEventsSection() {
   const sectionRef = useRef(null);
@@ -87,7 +64,7 @@ export default function NewsEventsSection() {
                   <div className="p-6 pb-3">
                     <div className="font-bold uppercase text-sm mb-2">Actu</div>
                     <div className="font-bold text-xl mb-1">
-                      {newsData.date}
+                      {new Date(newsData.createdAt).toLocaleDateString("fr-FR")}
                     </div>
                   </div>
 
@@ -107,10 +84,9 @@ export default function NewsEventsSection() {
                       </div>
                     </div>
                     <div className="w-1/3 pr-6">
-                      {/* à modifier later */}
                       <div className="h-64 relative">
                         <img
-                          src={newsData.image}
+                          src={`data:image/jpeg;base64,${newsData.image}`}
                           alt="News illustration"
                           className="w-full h-full object-cover object-center"
                         />
@@ -147,7 +123,7 @@ export default function NewsEventsSection() {
                       Événements
                     </div>
                     <div className="font-bold text-xl mb-1">
-                      {eventData.date}
+                      {new Date(eventData.createdAt).toLocaleDateString("fr-FR")}
                     </div>
                   </div>
 
@@ -167,10 +143,9 @@ export default function NewsEventsSection() {
                       </div>
                     </div>
                     <div className="w-1/3 pr-6">
-                      {/*  params image */}
                       <div className="h-64 relative">
                         <img
-                          src={eventData.image}
+                          src={`data:image/jpeg;base64,${eventData.image}`}
                           alt="Event illustration"
                           className="w-full h-full object-cover object-center"
                         />
