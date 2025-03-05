@@ -110,7 +110,13 @@ export default function Header() {
                 aria-label={`Navigation to ${item.title} submenu`}
                 aria-expanded={openMenu === item.title}
               >
-                {item.title} {item.subItems && <span className="ml-1">▾</span>}
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  className="block px-4 py-2 text-sm text-white hover:bg-gray-900 transition-colors"
+                >
+                  {item.title} {item.subItems && <span className="ml-1">▾</span>}
+                </Link>
               </button>
 
               <AnimatePresence>
