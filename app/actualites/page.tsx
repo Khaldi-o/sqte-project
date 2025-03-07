@@ -4,56 +4,54 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { QueryProvider } from "@/components/QueryProvider";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { useEffect, useState } from "react";
 
-// Types for our API data
-type NewsItem = {
-  id: number;
-  date: string;
-  title: string;
-  excerpt: string;
-  image: string;
-};
-
-// Mock API function (would connect to real API in production)
-const fetchNews = async (): Promise<NewsItem[]> => {
-  // In a real app, this would be an API call
-  return [
-    {
-      id: 1,
-      date: "20/12/24",
-      title: "Actualité 1",
-      excerpt: "jdjdjdjjdjdjdjddjjjjjjjjjjjjjjjjjjjj",
-      image: "/images/img4.png",
-    },
-    {
-      id: 2,
-      date: "05/02/25",
-      title: "Actualité 1",
-      excerpt: "jdjdjdjjdjdjdjddjjjjjjjjjjjjjjjjjjjj",
-      image: "/images/img4.png",
-    },
-    {
-      id: 3,
-      date: "20/12/24",
-      title: "Actualité 1",
-      excerpt: "jdjdjdjjdjdjdjddjjjjjjjjjjjjjjjjjjjj",
-      image: "/images/img4.png",
-    },
-    {
-      id: 4,
-      date: "20/11/24",
-      title: "Actualité 1",
-      excerpt: "jdjdjdjjdjdjdjddjjjjjjjjjjjjjjjjjjjj",
-      image: "/images/img4.png",
-    },
-  ];
+const fetchNews = async ({
+  queryKey,
+}: {
+  queryKey: [string, { page: number; pageSize: number }];
+}) => {
+  const [_key, { page, pageSize }] = queryKey;
+  const response = await fetch(`/api/news?page=${page}&pageSize=${pageSize}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch news");
+  }
+  return response.json();
 };
 
 function NewsPage() {
-  const { data: newsItems, isLoading } = useQuery({
-    queryKey: ["news"],
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const pageSize = 2;
+
+  const {
+    data: newsItems,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["news", { page: currentPage, pageSize }],
     queryFn: fetchNews,
   });
+
+  const handleNextPage = () =>
+    setCurrentPage((next) => (next < totalPages ? next + 1 : totalPages));
+  const handlePrevPage = () =>
+    setCurrentPage((prev) => (prev > 1 ? prev - 1 : 1));
+
+  useEffect(() => {
+    if (newsItems && newsItems.totalPages) {
+      setTotalPages(newsItems.totalPages);
+    }
+  }, [newsItems]);
 
   return (
     <div className="min-h-screen py-16">
@@ -90,37 +88,57 @@ function NewsPage() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {newsItems?.map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white rounded-lg overflow-hidden shadow-lg"
-              >
-                <div className="relative h-64">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-6">
-                  <p className="text-sm text-gray-600 mb-2">{item.date}</p>
-                  <h2 className="text-2xl font-bold mb-4">{item.title}</h2>
-                  <p className="mb-6">{item.excerpt}</p>
-                  <motion.div whileHover={{ scale: 1.05 }}>
-                    <Link
-                      href={`/actualites/${item.id}`}
-                      className="inline-block bg-black text-white px-6 py-2 rounded-lg"
-                    >
-                      Lire l'article
-                    </Link>
-                  </motion.div>
-                </div>
-              </motion.div>
-            ))}
+          <div className="flex flex-col gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {newsItems.news?.map((news, index) => (
+                <motion.div
+                  key={news.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="bg-white rounded-lg overflow-hidden shadow-lg"
+                >
+                  <div className="relative h-64">
+                    <img
+                      src={`data:image/jpeg;base64,${news.image}`}
+                      alt={news.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <p className="text-sm text-gray-600 mb-2">{news.date}</p>
+                    <h2 className="text-2xl font-bold mb-4">{news.title}</h2>
+                    <p className="mb-6">{news.excerpt}</p>
+                    <motion.div whileHover={{ scale: 1.05 }}>
+                      <Link
+                        href={`/actualites/${news.id}`}
+                        className="inline-block bg-black text-white px-6 py-2 rounded-lg"
+                      >
+                        Lire l'article
+                      </Link>
+                    </motion.div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            <div>
+              <Pagination>
+                <PaginationContent>
+                  <PaginationPrevious onClick={() => handlePrevPage()} />
+                  {Array.from({ length: totalPages }, (_, index) => (
+                    <PaginationItem key={index}>
+                      <PaginationLink
+                        isActive={currentPage === index + 1}
+                        onClick={() => setCurrentPage(index + 1)}
+                      >
+                        {index + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationNext onClick={() => handleNextPage()} />
+                </PaginationContent>
+              </Pagination>
+            </div>
           </div>
         )}
       </div>
