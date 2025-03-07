@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Facebook } from "lucide-react";
+import { Facebook, Instagram } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -73,7 +73,6 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Mobile Menu Button */}
         <button
           className="md:hidden flex flex-col justify-center items-center gap-1.5"
           onClick={handleMobileMenuToggle}
@@ -100,7 +99,6 @@ export default function Header() {
           />
         </button>
 
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-4">
           {navItems.map((item, index) => (
             <div key={item.title} className="relative">
@@ -115,7 +113,6 @@ export default function Header() {
                 {item.title} {item.subItems && <span className="ml-1">▾</span>}
               </button>
 
-              {/* Dropdown Menu */}
               <AnimatePresence>
                 {openMenu === item.title && item.subItems && (
                   <motion.div
@@ -142,7 +139,6 @@ export default function Header() {
                 )}
               </AnimatePresence>
 
-              {/* Separator */}
               {index < navItems.length - 1 && (
                 <span className="text-white mx-2">|</span>
               )}
@@ -159,6 +155,18 @@ export default function Header() {
             className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-black"
           >
             <Facebook size={20} className="text-white" />
+          </motion.a>
+
+          {/* Instagram Icon */}
+          <motion.a
+            href="https://instagram.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visit our Instagram page"
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-black"
+          >
+            <Instagram size={20} className="text-white" />
           </motion.a>
         </nav>
       </div>

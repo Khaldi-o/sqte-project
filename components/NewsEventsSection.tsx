@@ -63,7 +63,7 @@ export default function NewsEventsSection() {
   return (
     <section ref={sectionRef} className="py-16 bg-gray-100">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
           {/* Actu Column - 5 colonnes */}
           <motion.div
             className="lg:col-span-5 bg-[#FACC15] rounded-none overflow-hidden shadow-md"
